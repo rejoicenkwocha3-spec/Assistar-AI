@@ -32,7 +32,7 @@ export function SignupForm() {
         email: parsed.data.email,
         password: parsed.data.password,
         options: {
-          data: { full_name: parsed.data.fullName },
+          data: { full_name: parsed.data.fullName, app: "assistar" },
           emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
         },
       });
