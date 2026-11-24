@@ -1,6 +1,8 @@
 -- Assistar AI: auth foundation (profiles, organizations, members, workspaces) with RLS.
+-- Safe for an existing project: uses IF NOT EXISTS, adds missing columns, never drops data.
+-- BEFORE running on an old project, run supabase/check_existing_schema.sql and review it.
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text not null default '',
   email text,
@@ -10,7 +12,7 @@ create table public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create table public.organizations (
+create table if not exists public.organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 1 and 120),
   website text,
@@ -24,22 +26,39 @@ create table public.organizations (
   updated_at timestamptz not null default now()
 );
 
-create table public.organization_members (
+create table if not exists public.organization_members (
   organization_id uuid not null references public.organizations (id) on delete cascade,
   user_id uuid not null references auth.users (id) on delete cascade,
   role text not null default 'agent' check (role in ('owner', 'admin', 'manager', 'agent')),
   created_at timestamptz not null default now(),
   primary key (organization_id, user_id)
 );
-create index organization_members_user_idx on public.organization_members (user_id);
+create index if not exists organization_members_user_idx on public.organization_members (user_id);
 
-create table public.workspaces (
+create table if not exists public.workspaces (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations (id) on delete cascade,
   name text not null,
   created_at timestamptz not null default now()
 );
-create index workspaces_org_idx on public.workspaces (organization_id);
+create index if not exists workspaces_org_idx on public.workspaces (organization_id);
+
+-- If these tables already existed, make sure the columns this app needs are present.
+alter table public.profiles add column if not exists full_name text not null default '';
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists onboarded boolean not null default false;
+alter table public.profiles add column if not exists created_at timestamptz not null default now();
+alter table public.profiles add column if not exists updated_at timestamptz not null default now();
+alter table public.organizations add column if not exists website text;
+alter table public.organizations add column if not exists industry text;
+alter table public.organizations add column if not exists description text;
+alter table public.organizations add column if not exists support_needs text[] not null default '{}';
+alter table public.organizations add column if not exists preferred_channels text[] not null default '{}';
+alter table public.organizations add column if not exists plan text not null default 'none';
+alter table public.organizations add column if not exists created_by uuid references auth.users (id) on delete set null;
+alter table public.organizations add column if not exists created_at timestamptz not null default now();
+alter table public.organizations add column if not exists updated_at timestamptz not null default now();
 
 -- Helper functions (security definer avoids RLS recursion on organization_members).
 create or replace function public.is_org_member(org uuid)
@@ -62,7 +81,8 @@ declare
   org_id uuid;
   display_name text := coalesce(nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''), split_part(new.email, '@', 1));
 begin
-  insert into public.profiles (id, full_name, email) values (new.id, display_name, new.email);
+  insert into public.profiles (id, full_name, email) values (new.id, display_name, new.email)
+    on conflict (id) do nothing;
   insert into public.organizations (name, created_by) values (display_name || '''s Workspace', new.id)
     returning id into org_id;
   insert into public.organization_members (organization_id, user_id, role) values (org_id, new.id, 'owner');
@@ -71,6 +91,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -79,7 +100,9 @@ create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
 begin new.updated_at = now(); return new; end;
 $$;
+drop trigger if exists profiles_touch on public.profiles;
 create trigger profiles_touch before update on public.profiles for each row execute function public.touch_updated_at();
+drop trigger if exists organizations_touch on public.organizations;
 create trigger organizations_touch before update on public.organizations for each row execute function public.touch_updated_at();
 
 -- Row Level Security
@@ -88,15 +111,22 @@ alter table public.organizations enable row level security;
 alter table public.organization_members enable row level security;
 alter table public.workspaces enable row level security;
 
+drop policy if exists "profiles: read own" on public.profiles;
 create policy "profiles: read own" on public.profiles for select using (id = auth.uid());
+drop policy if exists "profiles: update own" on public.profiles;
 create policy "profiles: update own" on public.profiles for update using (id = auth.uid()) with check (id = auth.uid());
 
+drop policy if exists "orgs: members read" on public.organizations;
 create policy "orgs: members read" on public.organizations for select using (public.is_org_member(id));
+drop policy if exists "orgs: admins update" on public.organizations;
 create policy "orgs: admins update" on public.organizations for update
   using (public.is_org_admin(id)) with check (public.is_org_admin(id));
 
+drop policy if exists "members: read same org" on public.organization_members;
 create policy "members: read same org" on public.organization_members for select using (public.is_org_member(organization_id));
 
+drop policy if exists "workspaces: members read" on public.workspaces;
 create policy "workspaces: members read" on public.workspaces for select using (public.is_org_member(organization_id));
+drop policy if exists "workspaces: admins write" on public.workspaces;
 create policy "workspaces: admins write" on public.workspaces for all
   using (public.is_org_admin(organization_id)) with check (public.is_org_admin(organization_id));
