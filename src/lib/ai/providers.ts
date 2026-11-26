@@ -26,7 +26,7 @@ export async function callModel(opts: {
   if (provider === "anthropic") {
     const key = process.env.ANTHROPIC_API_KEY;
     if (!key) throw new ConfigError("ANTHROPIC_API_KEY is not configured on the server.");
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(`${process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com"}/v1/messages`, {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model, max_tokens: 1024, system, messages }),
@@ -40,7 +40,7 @@ export async function callModel(opts: {
 
   const key = process.env.OPENAI_API_KEY;
   if (!key) throw new ConfigError("OPENAI_API_KEY is not configured on the server.");
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${process.env.OPENAI_BASE_URL ?? "https://api.openai.com"}/v1/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
     body: JSON.stringify({ model, max_completion_tokens: 1024, messages: [{ role: "system", content: system }, ...messages] }),

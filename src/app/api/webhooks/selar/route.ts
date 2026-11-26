@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { planByPrice } from "@/config/plans";
+import { parseSelarPayload } from "@/lib/selar";
 
 export const dynamic = "force-dynamic";
 
@@ -16,17 +16,6 @@ const safeEqual = (a: string, b: string) => {
   return x.length === y.length && timingSafeEqual(x, y);
 };
 
-// Selar's field names are not published on the checkout pages, so common shapes are accepted.
-// Confirm against a real test payload in assistar_payment_events and adjust if needed.
-function dig(obj: unknown, paths: string[]): unknown {
-  for (const p of paths) {
-    let cur: unknown = obj;
-    for (const k of p.split(".")) cur = cur && typeof cur === "object" ? (cur as Record<string, unknown>)[k] : undefined;
-    if (cur !== undefined && cur !== null && cur !== "") return cur;
-  }
-  return undefined;
-}
-
 export async function POST(req: Request) {
   const secret = process.env.SELAR_WEBHOOK_SECRET;
   if (!secret) return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
@@ -38,13 +27,7 @@ export async function POST(req: Request) {
   if (!payload || typeof payload !== "object") return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
 
   const db = createAdminClient();
-  const email = String(dig(payload, ["customer_email", "email", "data.customer_email", "data.email", "customer.email", "buyer.email", "data.customer.email"]) ?? "").trim().toLowerCase();
-  const reference = String(dig(payload, ["reference", "transaction_reference", "order_id", "id", "data.reference", "data.order_id", "data.id"]) ?? "") || null;
-  const amount = Number(dig(payload, ["amount", "price", "data.amount", "data.price", "total", "data.total"]) ?? NaN);
-  const currency = String(dig(payload, ["currency", "data.currency"]) ?? "").toUpperCase() || null;
-  const eventType = String(dig(payload, ["event", "type", "status", "data.status"]) ?? "") || null;
-  const status = String(dig(payload, ["status", "data.status", "payment_status"]) ?? eventType ?? "").toLowerCase();
-  const success = /(success|paid|complete|charge\.success|subscription\.(create|renew|payment))/.test(status + " " + (eventType ?? "").toLowerCase());
+  const { email, reference, amount, currency, eventType, success, plan } = parseSelarPayload(payload);
 
   const base = { provider: "selar", event_type: eventType, reference, email: email || null, amount: Number.isFinite(amount) ? amount : null, currency, verified: true, payload };
 
@@ -62,10 +45,9 @@ export async function POST(req: Request) {
   if (!success) return reject("Event is not a successful payment.");
   if (!email) return reject("No buyer email in payload.");
   if (!Number.isFinite(amount) || (currency && currency !== "USD")) return reject("Missing amount or unsupported currency.");
-  const plan = planByPrice(amount);
   if (!plan) return reject(`Amount ${amount} does not match a configured plan.`);
 
-  const { data: profile } = await db.from("profiles").select("id").ilike("email", email).maybeSingle();
+  const { data: profile } = await db.from("profiles").select("id").ilike("email", email.replace(/[\\%_]/g, "\\$&")).maybeSingle();
   if (!profile) return reject("No Assistar account uses this email. Ask the buyer to sign up with the checkout email.");
   const { data: member } = await db.from("organization_members").select("organization_id").eq("user_id", profile.id).eq("role", "owner").order("created_at").limit(1).maybeSingle();
   if (!member) return reject("Account has no organization.");
