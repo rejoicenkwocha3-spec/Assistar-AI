@@ -31,8 +31,8 @@ export default async function InvitePage({ params, searchParams }: { params: Pro
       {user ? (
         <form action={accept} className="space-y-4"><p className="text-sm text-ink-muted">Signed in as <strong className="text-ink">{user.email}</strong>. The invitation only works for the email it was sent to.</p><Submit className="btn-primary">Accept invitation</Submit></form>
       ) : (
-        <div className="space-y-3"><p className="text-sm text-ink-muted">Log in or create an account with the email address that received this invitation.</p>
-          <Link href={`/login?next=${next}`} className="btn-primary">Log in</Link><Link href={`/signup?next=${next}`} className="btn-secondary w-full">Create an account</Link></div>
+        <div className="space-y-3"><p className="text-sm text-ink-muted">Sign in or create an account with the email address that received this invitation.</p>
+          <Link href={`/login?next=${next}`} className="btn-primary">Sign in</Link><Link href={`/signup?next=${next}`} className="btn-secondary w-full">Create an account</Link></div>
       )}
     </AuthShell>
   );

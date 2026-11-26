@@ -38,13 +38,13 @@ export function SignupForm({ next }: { next?: string }) {
       });
       if (error) {
         setFormError(/already registered/i.test(error.message)
-          ? "An account with this email already exists. Log in instead."
+          ? "An account with this email already exists. Sign in instead."
           : error.message);
         return;
       }
       // Email already registered and confirmation is on: Supabase returns no identities.
       if (data.user && data.user.identities && data.user.identities.length === 0) {
-        setFormError("An account with this email already exists. Log in instead.");
+        setFormError("An account with this email already exists. Sign in instead.");
         return;
       }
       if (data.session) {
@@ -68,7 +68,7 @@ export function SignupForm({ next }: { next?: string }) {
         <p className="text-sm text-ink-muted">
           We sent a verification link to <strong className="text-ink">{sentTo}</strong>. Open it to activate your account and continue to onboarding.
         </p>
-        <Link href="/login" className="btn-secondary w-full">Back to log in</Link>
+        <Link href="/login" className="btn-secondary w-full">Back to sign in</Link>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export function SignupForm({ next }: { next?: string }) {
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       {formError && (
         <Alert kind="error">
-          {formError} {formError.includes("Log in") && <Link href="/login" className="font-semibold underline">Go to log in</Link>}
+          {formError} {formError.includes("Sign in") && <Link href="/login" className="font-semibold underline">Go to sign in</Link>}
         </Alert>
       )}
       <Field label="Full name" name="fullName" autoComplete="name" placeholder="Jane Doe" error={errors.fullName} />

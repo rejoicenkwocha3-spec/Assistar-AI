@@ -19,7 +19,7 @@ const SOLUTIONS = [
 export default function SolutionsPage() {
   return (
     <>
-      <PageHero eyebrow="Solutions" title="Better conversations for every kind of business." body="Whatever you sell, customers want fast, accurate answers and a real person when it matters. Here is how Assistar AI helps in each industry."><Pill href="/signup">Build Your Assistant</Pill><Pill href="/platform" variant="outline">Explore Platform</Pill></PageHero>
+      <PageHero eyebrow="Solutions" title="Better conversations for every kind of business." body="Whatever you sell, customers want fast, accurate answers and a real person when it matters. Here is how Assistar AI helps in each industry."><Pill href="/signup">Get Started</Pill><Pill href="/login" variant="outline">Sign in</Pill></PageHero>
       <Container>
         <nav aria-label="Industries" className="flex flex-wrap justify-center gap-2 pb-12">{SOLUTIONS.map((s) => <a key={s.id} href={`#${s.id}`} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-forest hover:border-forest">{s.name}</a>)}</nav>
         <div className="space-y-5 pb-20">

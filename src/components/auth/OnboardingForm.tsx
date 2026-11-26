@@ -48,7 +48,7 @@ export function OnboardingForm() {
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setFormError("Your session expired. Log in again.");
+      if (!user) return setFormError("Your session expired. Sign in again.");
       const { data: member, error: mErr } = await supabase
         .from("organization_members").select("organization_id").eq("user_id", user.id).eq("role", "owner").order("created_at").limit(1).single();
       if (mErr || !member) return setFormError("We could not find your workspace. Please contact support.");

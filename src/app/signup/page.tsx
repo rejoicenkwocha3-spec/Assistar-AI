@@ -6,7 +6,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   const { next } = await searchParams;
   return (
     <AuthShell title="Create your account" subtitle="Set up your workspace and build your first assistant."
-      footer={<>Already have an account? <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-semibold text-forest hover:underline">Log in</Link></>}>
+      footer={<>Already have an account? <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-semibold text-forest hover:underline">Sign in</Link></>}>
       <SignupForm next={next} />
     </AuthShell>
   );

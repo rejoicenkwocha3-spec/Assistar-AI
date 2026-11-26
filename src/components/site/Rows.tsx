@@ -1,14 +1,22 @@
 import { Check } from "lucide-react";
 
-export function FeatureRow({ id, title, body, bullets, visual, reverse = false }: { id?: string; title: string; body: string; bullets?: string[]; visual: React.ReactNode; reverse?: boolean }) {
+export function FeatureRow({ id, title, body, bullets }: { id?: string; title: string; body: string; bullets?: string[] }) {
   return (
-    <div id={id} className={`grid grid-cols-1 scroll-mt-24 items-center gap-8 lg:grid-cols-2 lg:gap-16 ${reverse ? "lg:[&>*:first-child]:order-2" : ""}`}>
-      <div className="min-w-0">
-        <h3 className="font-heading text-2xl font-medium tracking-tight text-forest sm:text-4xl sm:leading-tight">{title}</h3>
-        <p className="mt-4 text-lg leading-relaxed text-ink-muted">{body}</p>
+    <div id={id} className="grid scroll-mt-24 grid-cols-1 gap-6 rounded-[2rem] bg-white p-7 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+      <h3 className="font-heading text-2xl font-medium tracking-tight text-forest sm:text-4xl sm:leading-tight">{title}</h3>
+      <div>
+        <p className="text-lg leading-relaxed text-ink-muted">{body}</p>
         {!!bullets?.length && <ul className="mt-5 space-y-2.5">{bullets.map((b) => <li key={b} className="flex items-start gap-3 text-ink"><Check size={18} className="mt-1 shrink-0 text-success" />{b}</li>)}</ul>}
       </div>
-      <div className="min-w-0 rounded-[1.75rem] bg-surface p-5 sm:p-8">{visual}</div>
+    </div>
+  );
+}
+
+export function InfoCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-[1.5rem] bg-white p-6">
+      <h3 className="font-heading text-lg font-semibold text-forest">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-ink-muted">{body}</p>
     </div>
   );
 }

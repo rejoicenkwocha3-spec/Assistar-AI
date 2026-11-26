@@ -22,7 +22,7 @@ export function SiteNav() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Link href="/login" className="rounded-full px-4 py-2 text-sm font-medium text-ink hover:bg-white">Log in</Link>
+          <Link href="/login" className="rounded-full px-4 py-2 text-sm font-medium text-ink hover:bg-white">Sign in</Link>
           <Link href="/signup" className="rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-forest-deep">Get Started</Link>
         </div>
         <button onClick={() => setOpen((o) => !o)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} className="rounded-lg p-2 text-ink md:hidden">
@@ -36,7 +36,7 @@ export function SiteNav() {
           </nav>
           <div className="mt-5 flex flex-col gap-3">
             <Link href="/signup" className="rounded-full bg-forest py-3 text-center font-semibold text-white">Get Started</Link>
-            <Link href="/login" className="rounded-full border border-forest/30 py-3 text-center font-semibold text-forest">Log in</Link>
+            <Link href="/login" className="rounded-full border border-forest/30 py-3 text-center font-semibold text-forest">Sign in</Link>
           </div>
         </div>
       )}

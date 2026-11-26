@@ -35,7 +35,7 @@ export function FinalCta({ title = "Build the assistant your customers deserve."
       <div className="rounded-[2rem] bg-forest px-6 py-16 text-center sm:px-12">
         <h2 className="mx-auto max-w-3xl font-heading text-3xl font-medium tracking-tight text-white sm:text-5xl sm:leading-[1.1]">{title}</h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-sage">{body}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3"><Pill href="/signup" variant="light">Build Your Assistant</Pill><Pill href="/platform" variant="ghost">Explore Platform</Pill></div>
+        <div className="mt-8 flex flex-wrap justify-center gap-3"><Pill href="/signup" variant="light">Get Started</Pill><Pill href="/login" variant="ghost">Sign in</Pill></div>
       </div>
     </Container>
   );

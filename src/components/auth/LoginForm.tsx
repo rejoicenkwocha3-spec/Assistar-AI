@@ -72,7 +72,7 @@ export function LoginForm({ next, notice }: { next?: string; notice?: string }) 
         </div>
       </div>
       <button type="submit" disabled={loading} className="btn-primary">
-        {loading && <Loader2 size={16} className="animate-spin" />} {loading ? "Signing in" : "Log in"}
+        {loading && <Loader2 size={16} className="animate-spin" />} {loading ? "Signing in" : "Sign in"}
       </button>
     </form>
   );

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PLANS } from "@/config/plans";
 import { CardLink, Container, FinalCta, Pill, SectionHead } from "@/components/site/ui";
-import { ActionCard, BuilderCard, ChannelsCard, ChatSample, ContextCard, DashboardPreview, HandoffCard, KnowledgeCard, MonitorCard, ObservabilityCard, RecommendationCard, TestingCard } from "@/components/site/Visuals";
+import { InfoCard } from "@/components/site/Rows";
 
 const INDUSTRIES = ["Ecommerce", "Financial services", "Healthcare", "Telecommunications", "Retail", "Travel and hospitality", "SaaS companies", "Customer support teams", "Enterprise organizations"];
 
@@ -21,24 +21,25 @@ export default function Home() {
     <>
       {/* Hero */}
       <Container className="pt-4 sm:pt-6">
-        <section className="relative overflow-hidden rounded-[2rem] bg-forest-deep px-6 pb-10 pt-16 sm:px-12 sm:pb-14 sm:pt-24 lg:min-h-[640px]">
+        <section className="relative overflow-hidden rounded-[2rem] bg-forest-deep px-6 pb-10 pt-16 sm:px-12 sm:pb-14 sm:pt-24 lg:min-h-[560px]">
           <svg aria-hidden className="pointer-events-none absolute -right-24 -top-24 hidden h-[520px] w-[520px] opacity-[0.14] sm:block" viewBox="0 0 200 200" fill="none"><circle cx="100" cy="100" r="96" stroke="#A8BFA8" strokeWidth="1" /><circle cx="100" cy="100" r="70" stroke="#A8BFA8" strokeWidth="1" /><circle cx="100" cy="100" r="44" stroke="#C7DE72" strokeWidth="1" /><circle cx="100" cy="100" r="18" fill="#C7DE72" /></svg>
-          <div className="relative grid items-end gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:pt-24">
-            <div>
-              <h1 className="max-w-3xl font-heading text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">Meet the AI assistants that move your business forward.</h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-sage">Build intelligent AI assistants that understand your customers, resolve requests, and automate business tasks across every conversation.</p>
-              <div className="mt-9 flex flex-wrap gap-3"><Pill href="/signup" variant="light">Build Your Assistant</Pill><Pill href="/platform" variant="ghost">Explore Platform</Pill></div>
-            </div>
-            <ChatSample className="w-full lg:ml-auto lg:max-w-md" />
+          <div className="relative lg:pt-24">
+            <h1 className="max-w-3xl font-heading text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">Meet the AI assistants that move your business forward.</h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-sage">Build intelligent AI assistants that understand your customers, resolve requests, and automate business tasks across every conversation.</p>
+            <div className="mt-9 flex flex-wrap gap-3"><Pill href="/signup" variant="light">Get Started</Pill><Pill href="/login" variant="ghost">Sign in</Pill></div>
           </div>
         </section>
       </Container>
 
-      {/* Product tour */}
+      {/* Pillars */}
       <section className="py-20 sm:py-28">
         <Container>
           <SectionHead title="Meet Assistar AI" body="The platform for building, testing and running AI assistants for your customers." />
-          <div className="mt-12"><DashboardPreview /></div>
+          <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
+            <InfoCard title="Intelligence" body="Assistants understand customer questions, your business information and the context of each conversation." />
+            <InfoCard title="Automation" body="Assistants handle repetitive support work and complete approved tasks in your systems." />
+            <InfoCard title="Experience" body="Customers get faster, more personal and more consistent answers, with a real person ready when it matters." />
+          </div>
         </Container>
       </section>
 
@@ -47,8 +48,8 @@ export default function Home() {
         <Container>
           <SectionHead title="Build with confidence. Improve with evidence." />
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-[2rem] bg-surface p-6 sm:p-8"><BuilderCard /><h3 className="mt-6 font-heading text-xl font-semibold text-forest">Build</h3><p className="mt-2 leading-relaxed text-ink-muted">Start from a template for a common business need or create a custom assistant. Upload your documents, set the tone, and define when to hand off to your team.</p><div className="mt-4"><CardLink href="/features">See every feature</CardLink></div></div>
-            <div className="rounded-[2rem] bg-surface p-6 sm:p-8"><RecommendationCard /><h3 className="mt-6 font-heading text-xl font-semibold text-forest">Optimize</h3><p className="mt-2 leading-relaxed text-ink-muted">Monitoring surfaces unanswered questions, repeated complaints and escalation patterns from your real conversations, with clear recommendations.</p><div className="mt-4"><CardLink href="/platform">How the platform works</CardLink></div></div>
+            <div className="rounded-[2rem] bg-surface p-8 sm:p-10"><h3 className="font-heading text-2xl font-semibold text-forest">Build</h3><p className="mt-3 leading-relaxed text-ink-muted">Start from a template for a common business need or create a custom assistant. Upload your documents, set the tone, and define when to hand off to your team. Every change is saved as a version, and nothing reaches customers until you publish.</p><div className="mt-5"><CardLink href="/features">See every feature</CardLink></div></div>
+            <div className="rounded-[2rem] bg-surface p-8 sm:p-10"><h3 className="font-heading text-2xl font-semibold text-forest">Optimize</h3><p className="mt-3 leading-relaxed text-ink-muted">Monitoring surfaces unanswered questions, repeated complaints and escalation patterns from your real conversations, with clear recommendations for what to fix next.</p><div className="mt-5"><CardLink href="/platform">How the platform works</CardLink></div></div>
           </div>
         </Container>
       </section>
@@ -58,8 +59,10 @@ export default function Home() {
         <Container>
           <SectionHead title="Use your conversations to improve your assistants" />
           <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[[TestingCard, "Testing", "Run saved scenarios against any version and mark answers right or wrong before you publish."], [MonitorCard, "Monitoring", "Find the conversations that went badly and see why."], [KnowledgeCard, "Knowledge", "Upload PDF, Word, text and CSV files. Answers come from your content."], [ObservabilityCard, "Visibility", "Inspect which knowledge was used, which actions were requested, and how long each reply took."]].map(([V, t, d]) => { const Visual = V as typeof TestingCard; return (
-              <div key={t as string} className="flex flex-col"><div className="flex-1 rounded-[1.5rem] bg-surface p-4"><Visual /></div><h3 className="mt-4 font-heading text-lg font-semibold text-forest">{t as string}</h3><p className="mt-1 text-sm leading-relaxed text-ink-muted">{d as string}</p></div>); })}
+            <InfoCard title="Testing" body="Run saved scenarios against any version and mark answers right or wrong before you publish." />
+            <InfoCard title="Monitoring" body="Find the conversations that went badly and see why." />
+            <InfoCard title="Knowledge" body="Upload PDF, Word, text and CSV files. Answers come from your content." />
+            <InfoCard title="Visibility" body="Inspect which knowledge was used, which actions were requested, and how long each reply took." />
           </div>
         </Container>
       </section>
@@ -69,8 +72,10 @@ export default function Home() {
         <Container>
           <SectionHead title="Turn conversations into outcomes" body="Assistants remember context, take approved actions, and bring in your team at the right moment." />
           <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[[ContextCard, "Customer context", "Preferences, history and open issues carry from one conversation to the next."], [ActionCard, "Approved actions", "Connect your systems through webhooks. Sensitive actions wait for a person to approve."], [HandoffCard, "Human handoff", "Transfers include a summary, so customers never repeat themselves."], [ChannelsCard, "Every channel", "Website chat today, with email, WhatsApp, SMS and voice as providers are connected."]].map(([V, t, d]) => { const Visual = V as typeof ContextCard; return (
-              <div key={t as string} className="flex flex-col"><div className="flex-1 rounded-[1.5rem] bg-surface p-4"><Visual /></div><h3 className="mt-4 font-heading text-lg font-semibold text-forest">{t as string}</h3><p className="mt-1 text-sm leading-relaxed text-ink-muted">{d as string}</p></div>); })}
+            <InfoCard title="Customer context" body="Preferences, history and open issues carry from one conversation to the next." />
+            <InfoCard title="Approved actions" body="Connect your systems through webhooks. Sensitive actions wait for a person to approve." />
+            <InfoCard title="Human handoff" body="Transfers include a summary, so customers never repeat themselves." />
+            <InfoCard title="Website chat" body="Install the widget with one line of code. Email, WhatsApp, SMS and voice follow as providers are connected." />
           </div>
         </Container>
       </section>
