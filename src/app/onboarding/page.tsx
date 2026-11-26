@@ -7,6 +7,8 @@ export default async function OnboardingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/onboarding");
+  // Make sure a workspace exists (no-op when it already does) so the form below can save to it.
+  await supabase.rpc("assistar_ensure_workspace");
   const { data: profile } = await supabase.from("profiles").select("onboarded").eq("id", user.id).single();
   if (profile?.onboarded) redirect("/dashboard");
   return (

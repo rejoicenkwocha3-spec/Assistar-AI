@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
     login.searchParams.set("next", pathname);
     return NextResponse.redirect(login);
   }
-  if (user && GUEST_ONLY.includes(pathname)) {
+  if (user && GUEST_ONLY.includes(pathname) && !request.nextUrl.searchParams.has("error")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   return response;
