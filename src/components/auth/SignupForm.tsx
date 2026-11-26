@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, MailCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { flatten, signupSchema, type FieldErrors } from "@/lib/validation";
+import { flatten, safeNext, signupSchema, type FieldErrors } from "@/lib/validation";
 import { Alert } from "./AuthShell";
 import { Field, PasswordField } from "./Field";
 
-export function SignupForm() {
+export function SignupForm({ next }: { next?: string }) {
   const router = useRouter();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function SignupForm() {
         password: parsed.data.password,
         options: {
           data: { full_name: parsed.data.fullName, app: "assistar" },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext(next, "/onboarding"))}`,
         },
       });
       if (error) {
@@ -48,7 +48,7 @@ export function SignupForm() {
         return;
       }
       if (data.session) {
-        router.replace("/onboarding");
+        router.replace(safeNext(next, "/onboarding"));
         router.refresh();
       } else {
         setSentTo(parsed.data.email);

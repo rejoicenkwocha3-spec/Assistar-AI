@@ -5,6 +5,8 @@ import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { flatten, onboardingSchema, type FieldErrors } from "@/lib/validation";
 import { Alert } from "./AuthShell";
+import { TEMPLATES } from "@/config/templates";
+import { snapshotOf } from "@/lib/agents";
 import { Field } from "./Field";
 
 const INDUSTRIES = ["Ecommerce", "SaaS", "Financial services", "Healthcare", "Telecommunications", "Travel and hospitality", "Retail", "Marketing agency", "Enterprise", "Other"];
@@ -48,7 +50,7 @@ export function OnboardingForm() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return setFormError("Your session expired. Log in again.");
       const { data: member, error: mErr } = await supabase
-        .from("organization_members").select("organization_id").eq("user_id", user.id).limit(1).single();
+        .from("organization_members").select("organization_id").eq("user_id", user.id).eq("role", "owner").order("created_at").limit(1).single();
       if (mErr || !member) return setFormError("We could not find your workspace. Please contact support.");
       const v = parsed.data;
       const { error: oErr } = await supabase.from("organizations").update({
@@ -56,6 +58,15 @@ export function OnboardingForm() {
         description: v.description || null, support_needs: v.supportNeeds, preferred_channels: v.channels,
       }).eq("id", member.organization_id);
       if (oErr) return setFormError(oErr.message);
+      const tplKey = String(fd.get("template") ?? "");
+      const tpl = TEMPLATES.find((t) => t.key === tplKey);
+      if (tpl) {
+        const { data: agent } = await supabase.from("assistar_agents").insert({
+          organization_id: member.organization_id, name: tpl.name, description: tpl.description, template: tpl.key,
+          instructions: tpl.instructions, tone: tpl.tone, escalation_rules: tpl.escalation, welcome_message: tpl.welcome, created_by: user.id,
+        }).select("*").single();
+        if (agent) await supabase.from("assistar_agent_versions").insert({ organization_id: member.organization_id, agent_id: agent.id, version: 1, snapshot: snapshotOf(agent), note: "Created during onboarding", created_by: user.id });
+      }
       const { error: pErr } = await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
       if (pErr) return setFormError(pErr.message);
       router.replace("/dashboard");
@@ -86,6 +97,14 @@ export function OnboardingForm() {
       </div>
       <div><span className="label">Primary support needs</span><Checks name="supportNeeds" options={NEEDS} error={errors.supportNeeds} /></div>
       <div><span className="label">Preferred channels</span><Checks name="channels" options={CHANNELS} error={errors.channels} /></div>
+      <div>
+        <label className="label" htmlFor="template">Create your first assistant (optional)</label>
+        <select id="template" name="template" defaultValue="" className="input">
+          <option value="">Skip for now</option>
+          {TEMPLATES.map((t) => <option key={t.key} value={t.key}>{t.name}</option>)}
+        </select>
+        <p className="mt-1 text-xs text-ink-muted">You can edit it in Agent Studio. It stays a draft until you publish it.</p>
+      </div>
       <button type="submit" disabled={loading} className="btn-primary">
         {loading && <Loader2 size={16} className="animate-spin" />} Finish setup
       </button>

@@ -11,7 +11,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next, error } = await searchParams;
   return (
     <AuthShell title="Welcome back" subtitle="Log in to manage your AI assistants."
-      footer={<>New to Assistar AI? <Link href="/signup" className="font-semibold text-forest hover:underline">Create an account</Link></>}>
+      footer={<>New to Assistar AI? <Link href={next ? `/signup?next=${encodeURIComponent(next)}` : "/signup"} className="font-semibold text-forest hover:underline">Create an account</Link></>}>
       {error && NOTICES[error] && <div className="mb-4"><Alert kind="error">{NOTICES[error]}</Alert></div>}
       <LoginForm next={next} />
     </AuthShell>
